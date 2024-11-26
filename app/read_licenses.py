@@ -135,8 +135,12 @@ def read(license_file=None):
                 with open(license_file) as process:
                     lines = process.read()
             else:
-                process = subprocess.Popen([lm_util, "lmstat", "-f", "-c", "{}@{}".format(s['port'], s['hostname'])],
-                                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True)
+                if lmstat not in lm_util: # Windows/lm_util.exe
+                    process = subprocess.Popen([lm_util, "lmstat", "-f", "-c", "{}@{}".format(s['port'], s['hostname'])],
+                                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True)
+                else: # linux or elsewhere lmstat is a separate tool
+                    process = subprocess.Popen([lm_util, "-f", "-c", "{}@{}".format(s['port'], s['hostname'])],
+                                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True)                    
                 lines = process.stdout.read()
             has_error = parse_error_info(lines)
             if has_error:
